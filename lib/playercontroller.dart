@@ -8,6 +8,13 @@ class Playercontroller extends GetxController {
   final audioPlayer = AudioPlayer();
   late final RxInt playIndex = 0.obs;
   late final RxBool isPlaying = false.obs;
+
+  var position = ''.obs;
+  var duration = ''.obs;
+
+  var max = 0.0.obs;
+  var value = 0.0.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -22,6 +29,51 @@ class Playercontroller extends GetxController {
           Uri.parse(uri),
         ),
       );
+      audioPlayer.play();
+      isPlaying.value = true;
+      updatePosition();
+    } on Exception catch (e) {
+      Get.snackbar("Error", e.toString());
+    }
+  }
+
+  changeDurationToSeconds(double second) {
+    var duration = Duration(seconds: second.toInt());
+    audioPlayer.seek(duration);
+  }
+
+  void updatePosition() {
+    audioPlayer.durationStream.listen((dur) {
+      duration.value = dur.toString().split('.')[0];
+      max.value = dur!.inSeconds.toDouble();
+    });
+    audioPlayer.positionStream.listen((dur) {
+      position.value = dur.toString().split('.')[0];
+      value.value = dur.inSeconds.toDouble();
+    });
+  }
+
+  pauseSong(String uri) {
+    try {
+      audioPlayer.pause();
+      isPlaying(false);
+    } on Exception catch (e) {
+      Get.snackbar("Error", e.toString());
+    }
+  }
+
+  stopSong(String uri) {
+    try {
+      audioPlayer.stop();
+      isPlaying(false);
+    } on Exception catch (e) {
+      Get.snackbar("Error", e.toString());
+    }
+  }
+
+  resumeSong(String uri, int index) {
+    playIndex.value = index;
+    try {
       audioPlayer.play();
       isPlaying(true);
     } on Exception catch (e) {

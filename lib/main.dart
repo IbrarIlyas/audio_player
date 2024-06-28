@@ -1,3 +1,4 @@
+import 'package:audio_app/constants.dart';
 import 'package:audio_app/splashscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,6 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        splashColor: color1,
       ),
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
