@@ -18,7 +18,15 @@ class Playercontroller extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    check_Permission();
+    checkPermission();
+    updatePosition();
+
+    audioPlayer.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        isPlaying.value =
+            false; // Update the isPlaying state when song completes
+      }
+    });
   }
 
   playSong(String uri, int index) {
@@ -38,8 +46,8 @@ class Playercontroller extends GetxController {
   }
 
   changeDurationToSeconds(double second) {
-    var duration = Duration(seconds: second.toInt());
-    audioPlayer.seek(duration);
+    var dur = Duration(seconds: second.toInt());
+    audioPlayer.seek(dur);
   }
 
   void updatePosition() {
@@ -53,7 +61,7 @@ class Playercontroller extends GetxController {
     });
   }
 
-  pauseSong(String uri) {
+  pauseSong() {
     try {
       audioPlayer.pause();
       isPlaying(false);
@@ -62,7 +70,7 @@ class Playercontroller extends GetxController {
     }
   }
 
-  stopSong(String uri) {
+  stopSong() {
     try {
       audioPlayer.stop();
       isPlaying(false);
@@ -71,8 +79,7 @@ class Playercontroller extends GetxController {
     }
   }
 
-  resumeSong(String uri, int index) {
-    playIndex.value = index;
+  resumeSong() {
     try {
       audioPlayer.play();
       isPlaying(true);
@@ -81,12 +88,11 @@ class Playercontroller extends GetxController {
     }
   }
 
-  check_Permission() async {
+  checkPermission() async {
     PermissionStatus perm = await Permission.storage.request();
 
-    if (perm.isGranted) {
-    } else {
-      check_Permission();
+    if (!perm.isGranted) {
+      checkPermission();
     }
   }
 }

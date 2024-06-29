@@ -9,11 +9,8 @@ class PlayerScreen extends StatelessWidget {
   final List<SongModel> data;
   final int audioindex;
   PlayerScreen({super.key, required this.data, required this.audioindex}) {
-    if (controller.isPlaying.value == audioindex) {
-      controller.resumeSong(
-        data[audioindex].uri!,
-        audioindex,
-      );
+    if (controller.playIndex.value == audioindex) {
+      controller.resumeSong();
     } else {
       controller.playSong(data[audioindex].uri!, audioindex);
     }
@@ -43,21 +40,26 @@ class PlayerScreen extends StatelessWidget {
           children: [
             Expanded(
               flex: 4,
-              child: Container(
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color1,
-                ),
-                child: QueryArtworkWidget(
-                  id: data[audioindex].id,
-                  type: ArtworkType.AUDIO,
-                  artworkWidth: double.infinity,
-                  artworkHeight: double.infinity,
-                  nullArtworkWidget: Icon(
-                    size: 200,
-                    Icons.music_note,
-                    color: whitecolor,
+              child: Obx(
+                () => Container(
+                  padding: const EdgeInsets.all(15),
+                  clipBehavior: Clip.none,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                        color: color2, width: 10, style: BorderStyle.solid),
+                    shape: BoxShape.circle,
+                    color: color1,
+                  ),
+                  child: QueryArtworkWidget(
+                    id: data[controller.playIndex.value].id,
+                    type: ArtworkType.AUDIO,
+                    artworkWidth: double.infinity,
+                    artworkHeight: double.infinity,
+                    nullArtworkWidget: Icon(
+                      size: 200,
+                      Icons.music_note,
+                      color: whitecolor,
+                    ),
                   ),
                 ),
               ),
@@ -82,11 +84,13 @@ class PlayerScreen extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Text(
-                        data[audioindex].displayNameWOExt,
-                        style: mystyle(
-                          color_: whitecolor,
-                          fontSize: 14,
+                      child: Obx(
+                        () => Text(
+                          data[controller.playIndex.value].displayNameWOExt,
+                          style: mystyle(
+                            color_: whitecolor,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ),
@@ -95,12 +99,15 @@ class PlayerScreen extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Text(
-                        data[audioindex].artist.toString(),
-                        style: mystyle(
-                            color_: whitecolor,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w300),
+                      child: Obx(
+                        () => Text(
+                          data[controller.playIndex.value].artist ??
+                              'No Artist',
+                          style: mystyle(
+                              color_: whitecolor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w300),
+                        ),
                       ),
                     ),
                     const SizedBox(
@@ -118,17 +125,21 @@ class PlayerScreen extends StatelessWidget {
                             style: mystyle(fontSize: 10),
                           ),
                           Expanded(
-                              child: Slider(
-                                  max: controller.max.value,
-                                  value: controller.value.value,
-                                  min: 0.0,
-                                  inactiveColor: whitecolor,
-                                  activeColor: color1,
-                                  thumbColor: shadowcolor,
-                                  onChanged: (value) {
-                                    controller.changeDurationToSeconds(value);
-                                    value = value;
-                                  })),
+                            child: Slider(
+                              max: controller.max.value + 1,
+                              value: controller.value.value,
+                              min: 0.0,
+                              inactiveColor: whitecolor,
+                              activeColor: color1,
+                              thumbColor: shadowcolor,
+                              onChanged: (value) {
+                                controller.changeDurationToSeconds(value);
+                                controller.isPlaying.value = true;
+                                value = value;
+                                controller.resumeSong;
+                              },
+                            ),
+                          ),
                           Text(
                             controller.duration.value,
                             style: mystyle(fontSize: 10),
@@ -145,10 +156,19 @@ class PlayerScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Icon(
-                          Icons.skip_previous_rounded,
-                          color: whitecolor,
-                          size: 40,
+                        IconButton(
+                          onPressed: () {
+                            if (controller.playIndex.value > 0) {
+                              controller.playSong(
+                                  data[controller.playIndex.value - 1].uri!,
+                                  controller.playIndex.value - 1);
+                            }
+                          },
+                          icon: Icon(
+                            Icons.skip_previous_rounded,
+                            color: whitecolor,
+                            size: 40,
+                          ),
                         ),
                         GestureDetector(
                           onTap: onClick,
@@ -157,25 +177,35 @@ class PlayerScreen extends StatelessWidget {
                             radius: 30,
                             child: Obx(
                               () => Transform.scale(
-                                  scale: 1,
-                                  child: controller.isPlaying.value
-                                      ? Icon(
-                                          color: whitecolor,
-                                          Icons.pause,
-                                          size: 54,
-                                        )
-                                      : Icon(
-                                          color: whitecolor,
-                                          Icons.play_arrow,
-                                          size: 54,
-                                        )),
+                                scale: 1.25,
+                                child: controller.isPlaying.value
+                                    ? Icon(
+                                        color: whitecolor,
+                                        Icons.pause,
+                                        size: 50,
+                                      )
+                                    : Icon(
+                                        color: whitecolor,
+                                        Icons.play_arrow,
+                                        size: 50,
+                                      ),
+                              ),
                             ),
                           ),
                         ),
-                        Icon(
-                          color: whitecolor,
-                          Icons.skip_next_rounded,
-                          size: 40,
+                        IconButton(
+                          onPressed: () {
+                            if (controller.playIndex.value < data.length - 1) {
+                              controller.playSong(
+                                  data[controller.playIndex.value + 1].uri!,
+                                  controller.playIndex.value + 1);
+                            }
+                          },
+                          icon: Icon(
+                            color: whitecolor,
+                            Icons.skip_next_rounded,
+                            size: 40,
+                          ),
                         ),
                       ],
                     ),
@@ -191,9 +221,9 @@ class PlayerScreen extends StatelessWidget {
 
   void onClick() {
     if (controller.isPlaying.value) {
-      controller.pauseSong(data[audioindex].uri!);
+      controller.pauseSong();
     } else {
-      controller.resumeSong(data[audioindex].uri!, audioindex);
+      controller.resumeSong();
     }
   }
 }
