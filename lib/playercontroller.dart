@@ -23,8 +23,8 @@ class Playercontroller extends GetxController {
 
     audioPlayer.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
-        isPlaying.value =
-            false; // Update the isPlaying state when song completes
+        isPlaying.value = false;
+        refresh();
       }
     });
   }
@@ -37,8 +37,8 @@ class Playercontroller extends GetxController {
           Uri.parse(uri),
         ),
       );
-      audioPlayer.play();
       isPlaying.value = true;
+      audioPlayer.play();
       updatePosition();
     } on Exception catch (e) {
       Get.snackbar("Error", e.toString());
@@ -46,7 +46,7 @@ class Playercontroller extends GetxController {
   }
 
   changeDurationToSeconds(double second) {
-    var dur = Duration(seconds: second.toInt());
+    var dur = Duration(milliseconds: (second * 1000).toInt());
     audioPlayer.seek(dur);
   }
 
@@ -94,5 +94,9 @@ class Playercontroller extends GetxController {
     if (!perm.isGranted) {
       checkPermission();
     }
+  }
+
+  restart() {
+    refresh();
   }
 }

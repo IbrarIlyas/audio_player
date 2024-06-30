@@ -77,6 +77,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             selectedColor: color2,
                             title: Text(
                               snapshot.data![index].displayNameWOExt,
+                              maxLines: 2,
+                              overflow: TextOverflow.clip,
                               style:
                                   mystyle(color_: Colors.white, fontSize: 14),
                             ),
@@ -117,10 +119,14 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                             onTap: () {
                               if (controller.playIndex.value == index) {
-                                Get.to(() => PlayerScreen(
-                                      data: snapshot.data!,
-                                      audioindex: index,
-                                    ));
+                                Get.to(
+                                    () => PlayerScreen(
+                                          data: snapshot.data!,
+                                          audioindex: index,
+                                        ),
+                                    transition: Transition.rightToLeftWithFade,
+                                    duration:
+                                        const Duration(milliseconds: 600));
                               } else {
                                 controller.playSong(
                                     snapshot.data![index].uri, index);

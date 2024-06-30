@@ -27,8 +27,9 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        Get.off(() => const MyHomePage(
-            title: "My Music Player")); // Use Get.off for quick transition
+        Get.off(() => const MyHomePage(title: "My Music Player"),
+            transition: Transition
+                .rightToLeftWithFade); // Use Get.off for quick transition
       }
     });
   }

@@ -11,11 +11,21 @@ TextStyle mystyle({
   double fontSize = 24,
   Color color_ = Colors.white,
   double letterSpacing = 1,
+  bool shadow = false,
 }) {
   return GoogleFonts.lato(
     fontWeight: fontWeight,
     fontSize: fontSize,
     color: color_,
     letterSpacing: letterSpacing,
+    shadows: shadow
+        ? [
+            const Shadow(
+              blurRadius: 10.0,
+              color: Colors.white,
+              offset: Offset(5, 0),
+            ),
+          ]
+        : [],
   );
 }
