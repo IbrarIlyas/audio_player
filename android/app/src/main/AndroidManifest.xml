@@ -9,9 +9,9 @@
   <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
 
     <application
-        android:label="audio_app"
+        android:label="Play IT"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/music_icon">
         <activity
             android:name=".MainActivity"
             android:exported="true"
